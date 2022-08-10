@@ -31,7 +31,7 @@ We should design for maximum compatibility across this standard, the SMS mobile 
 Consistent, compatible interfaces will reduce the maintenance burden of wallets and dapps.
 
 ```diff
-+ One addition inconsistency I've encountered is how injected wallets handle 
++ One additional inconsistency I've encountered is how injected wallets handle 
 + loading into iframes that are also injected into a dapp. By default, iframes 
 + should be able to communicate with their parent window object, but some wallets
 + explicitly disallow this security reasons. It would be great if this specification 
