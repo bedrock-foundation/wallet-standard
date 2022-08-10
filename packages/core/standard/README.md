@@ -30,6 +30,16 @@ We should design for maximum compatibility across this standard, the SMS mobile 
 
 Consistent, compatible interfaces will reduce the maintenance burden of wallets and dapps.
 
+```diff
++ One addition inconsistency I've encountered is how injected wallets handle 
++ loading into iframes that are also injected into a dapp. By default, iframes 
++ should be able to communicate with their parent window object, but some wallets
++ explicitly disallow this security reasons. It would be great if this specification 
++ defined how wallets should interact with iframes. The use-case is fairly straight 
++ forward: on a checkout page an ecommerce store may load an iframe to handle the 
++ actual transfer of funds from customer to merchant. 
+```
+
 ### Wallet Adapter (and other libraries) will still be used by dapps
 
 Many dapps use Wallet Adapter to maximize their support for wallets and for state management.
@@ -47,7 +57,10 @@ No breaking changes is the goal. Wallet Adapter should abstract changes and depr
 When a dapp loads, it should detect all wallets that have already attached themselves to the window.
 
 After loading, a dapp should always detect any new wallet immediately when it attaches itself to the window.
-`What is the usecase for a wallet attaching itself to the window after the page has already loaded?'
+
+```diff
++ What is the usecase for a wallet attaching itself to the window after the page has already loaded?
+```
 
 A dapp should have no special logic for detecting any specific wallet.
 
@@ -80,16 +93,28 @@ When a dapp acts upon a wallet, it should have no effect on any other dapp that 
 
 Similarly, when a user interacts with the wallet UI, it should have no effect on any dapp.
 
-`This pushes account selection to the dapp instead of requiring the user to switch accoutns within the wallet. Will dapps be expected to create custom UI's for 
+```diff
++ This pushes account selection to the dapp instead of 
++ requiring the user to switch accounts within the wallet. 
++ I'm assuming wallet adapter will provide an easily embeddable UI for this.`
+```
 
 When a user changes accounts or networks in the wallet UI, their intent is to see their assets or act with them in the context of the wallet UI.
 
 After a dapp has connected to a wallet and discovered an account, the dapp should be able to request to sign using that account specifically.
-`Should dapps automatically detect new accounts that are created or imported within wallets that are already connected to the browser? This seems like the ideal behavior.`
 
 When this occurs, the wallet should display account and network changes to sign and send transactions for the dapp, and then return to its previous context.
 
-`Currently in most browser extension wallets it is possible for a user to have multiple accounts but only a single account selected at a time. When the currently selected account is switched in the wallet UI, the new account remains selected for all dapps until a different account is selected. Allowing a dapp to request a signature from an account that is currently not selected is a great idea but may confuse some users as it is a departure from the current behavior. Some wallet UI's will be to modified to clearly show which account is being acted upon.`
+```diff 
++ Currently in most browser extension wallets it is possible for a user to 
++ have multiple accounts but only a single account selected at a time. When 
++ the selected account is switched to a different account in the wallet UI, 
++ the new account remains selected for all dapps until a different account is selected. 
++ Allowing a dapp to request a signature from an account that is currently 
++ not selected is a great idea but may confuse some users as it is a departure 
++ from the current behavior. Some wallet UI's will be to modified to clearly 
++ highlight which account is being acted upon.
+```
 
 ### Standardize feature support
 
@@ -113,7 +138,11 @@ web3.js is large and class-based, has many dependencies, and is likely to be sub
 Some wallets don't use web3.js to minimize the security surface of their code.
 
 The interface in the standard will always input and output transactions, pubkeys, and signatures as raw bytes (`Uint8Array`).
-`This is great. I'm curious how the type annotations for these Uint8Array's will be communicated as to inform developers that a value can be converted to a transaction, PublicKey, etc outside of wallet adapter.`
+```diff
++ This is great. I'm curious how the type annotations for these Uint8Array's 
++ can be communicated as to inform developers that a value can be converted 
++ to a transaction, PublicKey, etc outside of wallet adapter.
+```
 
 Wallet Adapter will encode these as web3.js `Transaction`, `PublicKey`, and Base58 strings as needed for compatibility with dapps.
 
@@ -126,14 +155,18 @@ The recent blockhash of the transaction should be valid for the cluster, and sim
 Wallets should treat failed simulation of transactions as a security issue and avoid returning signed transactions.
 
 Signing and sending from the wallet should still be the preferred interface, for security.
-`What are the security implications of signing with the wallet and sending outside the wallet?`
+```diff
++ What are the security implications of signing with the wallet and sending outside the wallet?
+```
 
 ### APIs should be versioned
 
 The API for window objects and the API for wallets should both be versioned semantically.
 
 Dapps should be able to detect available features based on known API versions.
-`Where is information on version to feature availability stored for dapp developers?`
+```diff
++ Where is information on version to feature availability stored for dapp developers?
+```
 
 Multiple versions should be able to coexist to the greatest extent possible.
 
@@ -166,8 +199,18 @@ Because API data is immutable, this should be a natural default.
 ### Multiple accounts should be supported
 
 With the user's permission, dapps should be able to discover multiple accounts in the wallet.
+```diff
++ Allowing dapps to see all of a users accounts has the side-effect of 
++ enabling dapps to easily associate multiple accounts with a single user. This 
++ could be used as a gate to dissallow accounts owned by the same person 
++ from taking certain actions. Some users may not want a dapp to see all their accounts. 
++ Probably not a real concern, but something to note. 
+```
 
 Wallets need a way for accounts to be securely enumerated, and inform dapps when there are accounts it doesn't know about.
+```diff 
+It would be great if wallet-adapter provided UI around notifying dapps of newly created or imported wallets so devs don't have to deal with all the nuance of building UI around this.
+```
 
 ### Wallets embed their own interface and metadata
 
@@ -178,17 +221,22 @@ Image files should be encoded with data URLs to avoid extra HTTP load.
 ### Errors should be predictable
 
 There should be standard error codes for known failure conditions.
-
-`I would love to see a document enumerating these errors and failure conditions. Might it make sense to make use HTTP error codes? These are failure standardized and developers are familiar with them.`
+```diff
+It would be great to have document enumerating these errors and failure conditions. 
+```
 
 ### Provide a reference implementation
 
 A browser extension wallet that implements minimal functionality should be created.
-`I would be happy to help wit this.`
+```diff
++ I would be happy to help with this.
+```
 
 This will act as a reference implementation and let us test the practicability of the design.
 
 A dapp that implements limited functionality should also be created.
-`I would be happy to help with this also.`
+```diff 
++ I would be happy to help with this also.
+```
 
 This will let us determine whether any breaking changes to Wallet Adapter are required.
